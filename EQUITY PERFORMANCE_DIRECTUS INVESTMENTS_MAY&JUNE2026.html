@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Equity Tradesheet Ledger — May & June 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --cover-green:#1B3B2C;
+    --cover-green-dark:#132A20;
+    --paper:#F4ECD8;
+    --paper-shadow:#E4D9BC;
+    --rule-blue:#9FB3C8;
+    --rule-red:#B9615A;
+    --ink-black:#211C15;
+    --ink-fade:#4C463C;
+    --ink-red:#9C2B23;
+    --ink-green:#1F5C3B;
+    --stamp-gold:#A9762F;
+    --stamp-red:#8E2A22;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at top, var(--cover-green) 0%, var(--cover-green-dark) 70%);
+    font-family:'Libre Baskerville', serif;
+    color:var(--ink-black);
+    padding:28px 14px 60px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  .masthead{
+    text-align:center;
+    color:var(--paper);
+    margin-bottom:22px;
+  }
+  .masthead .eyebrow{
+    font-family:'Courier Prime', monospace;
+    letter-spacing:0.35em;
+    font-size:11px;
+    opacity:0.75;
+    text-transform:uppercase;
+  }
+  .masthead h1{
+    font-family:'Special Elite', cursive;
+    font-size:clamp(28px, 5vw, 46px);
+    margin:6px 0 4px;
+    letter-spacing:0.02em;
+    text-shadow: 0 2px 0 rgba(0,0,0,0.3);
+  }
+  .masthead .sub{
+    font-family:'Courier Prime', monospace;
+    font-size:12px;
+    opacity:0.8;
+  }
+
+  /* the open ledger book */
+  .book{
+    max-width:1180px;
+    margin:0 auto;
+    position:relative;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    background:var(--paper);
+    box-shadow:0 25px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.15);
+    border-radius:3px;
+  }
+  .book::before{ /* spine shadow */
+    content:"";
+    position:absolute;
+    left:50%; top:0; bottom:0;
+    width:64px;
+    margin-left:-32px;
+    background:linear-gradient(90deg, transparent, rgba(0,0,0,0.16) 45%, rgba(0,0,0,0.16) 55%, transparent);
+    pointer-events:none;
+    z-index:5;
+  }
+  .page{
+    padding:34px 30px 30px;
+    position:relative;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px, transparent 33px,
+        var(--rule-blue) 33px, var(--rule-blue) 34px
+      );
+    background-position: 0 92px;
+  }
+  .page::after{ /* red margin rule */
+    content:"";
+    position:absolute; top:0; bottom:0; width:1px;
+    background:var(--rule-red);
+  }
+  .page.left::after{ left:64px; }
+  .page.right::after{ right:64px; }
+
+  .tab{
+    font-family:'Courier Prime', monospace;
+    font-size:11px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--ink-fade);
+    border-bottom:2px solid var(--ink-black);
+    padding-bottom:6px;
+    margin-bottom:18px;
+    display:flex;
+    justify-content:space-between;
+  }
+
+  .month-title{
+    font-family:'Special Elite', cursive;
+    font-size:26px;
+    margin:0 0 2px;
+    color:var(--ink-black);
+  }
+  .month-dates{
+    font-family:'Courier Prime', monospace;
+    font-size:11px;
+    color:var(--ink-fade);
+    margin-bottom:14px;
+  }
+
+  .headline-row{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin:10px 0 20px;
+  }
+  .return-figure{
+    font-family:'Courier Prime', monospace;
+    font-weight:700;
+  }
+  .return-figure .num{
+    font-size:34px;
+    display:block;
+    line-height:1;
+  }
+  .return-figure.positive .num{ color:var(--ink-green); }
+  .return-figure .label{
+    font-size:10px;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+    color:var(--ink-fade);
+  }
+
+  .stamp{
+    width:104px; height:104px;
+    border-radius:50%;
+    border:3px solid var(--stamp-red);
+    color:var(--stamp-red);
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    transform:rotate(-9deg);
+    font-family:'Special Elite', cursive;
+    text-align:center;
+    line-height:1.1;
+    opacity:0.88;
+    mix-blend-mode:multiply;
+    position:relative;
+    flex-shrink:0;
+  }
+  .stamp::before{
+    content:"";
+    position:absolute; inset:6px;
+    border:1px solid var(--stamp-red);
+    border-radius:50%;
+  }
+  .stamp .big{ font-size:22px; font-weight:bold; }
+  .stamp .small{ font-size:8px; letter-spacing:0.12em; text-transform:uppercase; margin-top:2px;}
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:0 14px;
+    font-family:'Courier Prime', monospace;
+    font-size:12px;
+    margin-bottom:20px;
+  }
+  .stat-grid div{
+    padding:5px 0;
+    border-bottom:1px dashed rgba(33,28,21,0.25);
+    display:flex;
+    justify-content:space-between;
+  }
+  .stat-grid span.v{ font-weight:700; }
+  .stat-grid .win{ color:var(--ink-green); }
+  .stat-grid .loss{ color:var(--ink-red); }
+
+  .chart-block{
+    margin-bottom:22px;
+  }
+  .chart-block h4{
+    font-family:'Special Elite', cursive;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    margin:0 0 8px;
+    color:var(--ink-black);
+    border-bottom:1px solid var(--ink-black);
+    padding-bottom:4px;
+  }
+  .chart-wrap{
+    background:rgba(255,255,255,0.35);
+    border:1px solid rgba(33,28,21,0.15);
+    padding:10px;
+    height:210px;
+  }
+  .chart-wrap.tall{ height:230px; }
+
+  table.ledger-table{
+    width:100%;
+    border-collapse:collapse;
+    font-family:'Courier Prime', monospace;
+    font-size:11.5px;
+  }
+  table.ledger-table th{
+    text-align:left;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    font-size:10px;
+    border-bottom:1px solid var(--ink-black);
+    padding:4px 4px;
+    color:var(--ink-fade);
+  }
+  table.ledger-table td{
+    padding:4px 4px;
+    border-bottom:1px dashed rgba(33,28,21,0.2);
+  }
+  table.ledger-table td.num, table.ledger-table th.num{ text-align:right; }
+  table.ledger-table{ table-layout:fixed; }
+  table.ledger-table td, table.ledger-table th{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  table.ledger-table tr.win td.num{ color:var(--ink-green); font-weight:700;}
+  table.ledger-table tr.loss td.num{ color:var(--ink-red); font-weight:700;}
+
+  .two-col-tables{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+
+  /* combined comparison band below the book */
+  .comparison{
+    max-width:1180px;
+    margin:34px auto 0;
+    background:var(--paper);
+    box-shadow:0 20px 45px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,0,0,0.15);
+    border-radius:3px;
+    padding:26px 30px 30px;
+  }
+  .comparison h2{
+    font-family:'Special Elite', cursive;
+    font-size:22px;
+    margin:0 0 4px;
+    border-bottom:2px solid var(--ink-black);
+    padding-bottom:8px;
+  }
+  .comparison .desc{
+    font-family:'Courier Prime', monospace;
+    font-size:11px;
+    color:var(--ink-fade);
+    margin:6px 0 18px;
+  }
+  .comp-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:20px;
+  }
+  @media (max-width:900px){
+    .book{ grid-template-columns:1fr; }
+    .book::before{ display:none; }
+    .page::after{ display:none; }
+    .comp-grid{ grid-template-columns:1fr; }
+    .two-col-tables{ grid-template-columns:1fr; }
+  }
+
+  .footer-note{
+    max-width:1180px;
+    margin:20px auto 0;
+    text-align:center;
+    color:var(--paper);
+    opacity:0.6;
+    font-family:'Courier Prime', monospace;
+    font-size:10px;
+    letter-spacing:0.08em;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="eyebrow">Daily Update Insights &mdash; Equity Desk</div>
+  <h1>The Trading Ledger</h1>
+  <div class="sub">FY2026 &middot; MAY &amp; JUNE ENTRIES &middot; 183 POSITIONS RECORDED</div>
+</div>
+
+<div class="book">
+
+  <!-- MAY PAGE -->
+  <div class="page left" id="page-may">
+    <div class="tab"><span>Vol. II</span><span>Folio 05</span></div>
+    <div class="month-title">May 2026</div>
+    <div class="month-dates">04 May &ndash; 29 May</div>
+
+    <div class="headline-row">
+      <div class="return-figure positive">
+        <span class="num" id="may-return">+0%</span>
+        <span class="label">Total Return Booked</span>
+      </div>
+      <div class="stamp">
+        <span class="big" id="may-winrate">0%</span>
+        <span class="small">Win Rate</span>
+      </div>
+    </div>
+
+    <div class="stat-grid" id="may-stats"></div>
+
+    <div class="chart-block">
+      <h4>Outcome Breakdown</h4>
+      <div class="chart-wrap"><canvas id="may-pie"></canvas></div>
+    </div>
+
+    <div class="chart-block">
+      <h4>Equity Curve &mdash; Cumulative Return %</h4>
+      <div class="chart-wrap tall"><canvas id="may-line"></canvas></div>
+    </div>
+
+    <div class="chart-block">
+      <h4>Trade Type Mix</h4>
+      <div class="chart-wrap"><canvas id="may-bar"></canvas></div>
+    </div>
+
+    <div class="two-col-tables">
+      <div class="chart-block">
+        <h4>Top 5 Winners</h4>
+        <table class="ledger-table" id="may-winners"></table>
+      </div>
+      <div class="chart-block">
+        <h4>Top 5 Setbacks</h4>
+        <table class="ledger-table" id="may-losers"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- JUNE PAGE -->
+  <div class="page right" id="page-june">
+    <div class="tab"><span>Vol. II</span><span>Folio 06</span></div>
+    <div class="month-title">June 2026</div>
+    <div class="month-dates">01 Jun &ndash; 30 Jun</div>
+
+    <div class="headline-row">
+      <div class="return-figure positive">
+        <span class="num" id="june-return">+0%</span>
+        <span class="label">Total Return Booked</span>
+      </div>
+      <div class="stamp">
+        <span class="big" id="june-winrate">0%</span>
+        <span class="small">Win Rate</span>
+      </div>
+    </div>
+
+    <div class="stat-grid" id="june-stats"></div>
+
+    <div class="chart-block">
+      <h4>Outcome Breakdown</h4>
+      <div class="chart-wrap"><canvas id="june-pie"></canvas></div>
+    </div>
+
+    <div class="chart-block">
+      <h4>Equity Curve &mdash; Cumulative Return %</h4>
+      <div class="chart-wrap tall"><canvas id="june-line"></canvas></div>
+    </div>
+
+    <div class="chart-block">
+      <h4>Trade Type Mix</h4>
+      <div class="chart-wrap"><canvas id="june-bar"></canvas></div>
+    </div>
+
+    <div class="two-col-tables">
+      <div class="chart-block">
+        <h4>Top 5 Winners</h4>
+        <table class="ledger-table" id="june-winners"></table>
+      </div>
+      <div class="chart-block">
+        <h4>Top 5 Setbacks</h4>
+        <table class="ledger-table" id="june-losers"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="comparison">
+  <h2>Ledger Reconciliation &mdash; May vs June</h2>
+  <div class="desc">A side-by-side audit of the two folios.</div>
+  <div class="comp-grid">
+    <div class="chart-block">
+      <h4>Trades Given</h4>
+      <div class="chart-wrap"><canvas id="cmp-trades"></canvas></div>
+    </div>
+    <div class="chart-block">
+      <h4>Win Rate %</h4>
+      <div class="chart-wrap"><canvas id="cmp-winrate"></canvas></div>
+    </div>
+    <div class="chart-block">
+      <h4>Total Return %</h4>
+      <div class="chart-wrap"><canvas id="cmp-return"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-note">Figures derived from DUI_TRACKSHEET_EQ2026 &middot; Assumes &#8377;1,00,000 notional per position &middot; HOLDING/open positions excluded from win-rate, included in trade counts</div>
+
+<script id="full-data-json" type="application/json">{"may": {"total_trades": 61, "closed_trades": 60, "open_trades": 1, "wins": 50, "losses": 10, "win_rate_closed": 83.33, "tgt1_count": 17, "tgt2_count": 31, "booked_count": 2, "booked_win": 2, "booked_loss": 0, "sl_hit_count": 10, "total_return_pct": 226.25, "total_pnl": 226246.75, "trade_type_breakdown": {"SWING": 38, "BTST": 20, "INVESTMENT": 3}, "daily": [{"date": "2026-05-04", "daily_pct": 30.91, "cum_pct": 30.91}, {"date": "2026-05-05", "daily_pct": 23.14, "cum_pct": 54.05}, {"date": "2026-05-06", "daily_pct": 14.2, "cum_pct": 68.25}, {"date": "2026-05-07", "daily_pct": 10.59, "cum_pct": 78.85}, {"date": "2026-05-08", "daily_pct": 6.4, "cum_pct": 85.25}, {"date": "2026-05-11", "daily_pct": 5.26, "cum_pct": 90.51}, {"date": "2026-05-12", "daily_pct": 17.96, "cum_pct": 108.47}, {"date": "2026-05-13", "daily_pct": 13.53, "cum_pct": 122.0}, {"date": "2026-05-14", "daily_pct": 1.65, "cum_pct": 123.66}, {"date": "2026-05-15", "daily_pct": 14.12, "cum_pct": 137.78}, {"date": "2026-05-18", "daily_pct": 13.84, "cum_pct": 151.63}, {"date": "2026-05-19", "daily_pct": -3.6, "cum_pct": 148.03}, {"date": "2026-05-20", "daily_pct": 11.15, "cum_pct": 159.18}, {"date": "2026-05-21", "daily_pct": 7.86, "cum_pct": 167.03}, {"date": "2026-05-22", "daily_pct": -3.32, "cum_pct": 163.71}, {"date": "2026-05-25", "daily_pct": 22.92, "cum_pct": 186.63}, {"date": "2026-05-26", "daily_pct": 9.3, "cum_pct": 195.93}, {"date": "2026-05-27", "daily_pct": 18.68, "cum_pct": 214.61}, {"date": "2026-05-29", "daily_pct": 11.63, "cum_pct": 226.25}], "top_winners": [{"SCRIP": "RR KABEL", "FINAL PnL": 10924.36974789916, "RETURN %": 0.1092436974789916}, {"SCRIP": "STYLAMIND", "FINAL PnL": 10749.464668094217, "RETURN %": 0.10749464668094216}, {"SCRIP": "DSSL", "FINAL PnL": 9722.222222222223, "RETURN %": 0.09722222222222222}, {"SCRIP": "WOCKPHARMA", "FINAL PnL": 8750.0, "RETURN %": 0.0875}, {"SCRIP": "BOMBAY DYEING", "FINAL PnL": 8661.417322834646, "RETURN %": 0.08661417322834647}], "top_losers": [{"SCRIP": "ELECON ENGINEERING", "FINAL PnL": -5263.1578947368425, "RETURN %": -0.052631578947368425}, {"SCRIP": "CENTUM", "FINAL PnL": -4331.331014859311, "RETURN %": -0.04331331014859311}, {"SCRIP": "PRESTIGE", "FINAL PnL": -3597.122302158273, "RETURN %": -0.03597122302158273}, {"SCRIP": "SUDARSHANCHEM", "FINAL PnL": -2742.616033755274, "RETURN %": -0.02742616033755274}, {"SCRIP": "CONCORDBIO", "FINAL PnL": -2564.102564102564, "RETURN %": -0.02564102564102564}]}, "june": {"total_trades": 120, "closed_trades": 113, "open_trades": 7, "wins": 83, "losses": 30, "win_rate_closed": 73.45, "tgt1_count": 43, "tgt2_count": 27, "booked_count": 13, "booked_win": 12, "booked_loss": 1, "sl_hit_count": 30, "total_return_pct": 214.15, "total_pnl": 214153.33, "trade_type_breakdown": {"BTST": 88, "SWING": 30, "INVESTMENT": 1, "SWING+BTST": 1}, "daily": [{"date": "2026-06-01", "daily_pct": 13.24, "cum_pct": 13.24}, {"date": "2026-06-02", "daily_pct": 6.64, "cum_pct": 19.88}, {"date": "2026-06-03", "daily_pct": 35.37, "cum_pct": 55.25}, {"date": "2026-06-04", "daily_pct": -8.85, "cum_pct": 46.4}, {"date": "2026-06-05", "daily_pct": -8.7, "cum_pct": 37.7}, {"date": "2026-06-08", "daily_pct": 7.18, "cum_pct": 44.87}, {"date": "2026-06-09", "daily_pct": 17.57, "cum_pct": 62.44}, {"date": "2026-06-10", "daily_pct": 13.1, "cum_pct": 75.55}, {"date": "2026-06-11", "daily_pct": 23.01, "cum_pct": 98.55}, {"date": "2026-06-12", "daily_pct": 13.91, "cum_pct": 112.47}, {"date": "2026-06-15", "daily_pct": 26.24, "cum_pct": 138.71}, {"date": "2026-06-16", "daily_pct": 3.26, "cum_pct": 141.97}, {"date": "2026-06-17", "daily_pct": 19.11, "cum_pct": 161.09}, {"date": "2026-06-18", "daily_pct": 15.55, "cum_pct": 176.64}, {"date": "2026-06-19", "daily_pct": 6.49, "cum_pct": 183.13}, {"date": "2026-06-22", "daily_pct": 5.54, "cum_pct": 188.67}, {"date": "2026-06-23", "daily_pct": -1.51, "cum_pct": 187.16}, {"date": "2026-06-24", "daily_pct": 2.13, "cum_pct": 189.29}, {"date": "2026-06-25", "daily_pct": 10.79, "cum_pct": 200.08}, {"date": "2026-06-29", "daily_pct": 3.25, "cum_pct": 203.33}, {"date": "2026-06-30", "daily_pct": 10.82, "cum_pct": 214.15}], "top_winners": [{"SCRIP": "INDOCO", "FINAL PnL": 8510.63829787234, "RETURN %": 0.0851063829787234}, {"SCRIP": "STERTOOLS", "FINAL PnL": 8510.63829787234, "RETURN %": 0.0851063829787234}, {"SCRIP": "KRISHNA DEFENCE", "FINAL PnL": 7575.757575757575, "RETURN %": 0.07575757575757575}, {"SCRIP": "EVERESTIND", "FINAL PnL": 7526.881720430108, "RETURN %": 0.07526881720430108}, {"SCRIP": "OCCL", "FINAL PnL": 7462.686567164179, "RETURN %": 0.07462686567164178}], "top_losers": [{"SCRIP": "RITES", "FINAL PnL": -7327.586206896552, "RETURN %": -0.07327586206896551}, {"SCRIP": "RELAXO", "FINAL PnL": -7142.857142857143, "RETURN %": -0.07142857142857142}, {"SCRIP": "ASHIANA", "FINAL PnL": -5063.291139240507, "RETURN %": -0.05063291139240507}, {"SCRIP": "IGARASHI", "FINAL PnL": -4545.454545454546, "RETURN %": -0.04545454545454546}, {"SCRIP": "OPTIEMUS", "FINAL PnL": -4444.444444444444, "RETURN %": -0.044444444444444446}]}}
+</script>
+<script>
+  const FULL = JSON.parse(document.getElementById('full-data-json').textContent);
+
+  const inkGreen = '#1F5C3B';
+  const inkRed = '#9C2B23';
+  const inkGold = '#A9762F';
+  const inkBlue = '#5C7A93';
+  const inkBlack = '#211C15';
+
+  Chart.defaults.font.family = "'Courier Prime', monospace";
+  Chart.defaults.font.size = 10.5;
+  Chart.defaults.color = inkBlack;
+
+  function fmtMoney(n){
+    return '₹' + Math.round(n).toLocaleString('en-IN');
+  }
+
+  function renderMonth(prefix, d){
+    document.getElementById(prefix+'-return').textContent = (d.total_return_pct>=0?'+':'') + d.total_return_pct + '%';
+    document.getElementById(prefix+'-winrate').textContent = d.win_rate_closed + '%';
+
+    const statsEl = document.getElementById(prefix+'-stats');
+    const stats = [
+      ['Trades Given', d.total_trades, ''],
+      ['Closed', d.closed_trades, ''],
+      ['Open / Holding', d.open_trades, ''],
+      ['Winning Trades', d.wins, 'win'],
+      ['Losing Trades', d.losses, 'loss'],
+      ['Total P&L', fmtMoney(d.total_pnl), 'win'],
+    ];
+    statsEl.innerHTML = stats.map(([k,v,cls])=>`<div><span>${k}</span><span class="v ${cls}">${v}</span></div>`).join('');
+
+    // Pie: outcome breakdown
+    new Chart(document.getElementById(prefix+'-pie'), {
+      type:'doughnut',
+      data:{
+        labels:['1st Target Hit','2nd Target Hit','Booked (manual)','SL Hit','Open/Holding'],
+        datasets:[{
+          data:[d.tgt1_count, d.tgt2_count, d.booked_count, d.sl_hit_count, d.open_trades],
+          backgroundColor:[inkGreen, '#3C8562', inkGold, inkRed, '#B9C9BE'],
+          borderColor:'#F4ECD8',
+          borderWidth:2
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, padding:8 } } }
+      }
+    });
+
+    // Line: equity curve
+    new Chart(document.getElementById(prefix+'-line'), {
+      type:'line',
+      data:{
+        labels: d.daily.map(x=>x.date.slice(5)),
+        datasets:[{
+          label:'Cumulative Return %',
+          data: d.daily.map(x=>x.cum_pct),
+          borderColor: inkGreen,
+          backgroundColor: 'rgba(31,92,59,0.15)',
+          fill:true,
+          tension:0.25,
+          pointRadius:2,
+          pointBackgroundColor: inkGreen
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false } },
+        scales:{
+          x:{ grid:{ display:false }, ticks:{ maxRotation:60, minRotation:60 } },
+          y:{ grid:{ color:'rgba(33,28,21,0.1)' }, title:{ display:true, text:'%' } }
+        }
+      }
+    });
+
+    // Bar: trade type mix
+    const types = Object.keys(d.trade_type_breakdown);
+    new Chart(document.getElementById(prefix+'-bar'), {
+      type:'bar',
+      data:{
+        labels: types,
+        datasets:[{
+          data: types.map(t=>d.trade_type_breakdown[t]),
+          backgroundColor: [inkGold, inkBlue, inkGreen, inkRed]
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ display:false } },
+        scales:{ y:{ beginAtZero:true, ticks:{ precision:0 } } }
+      }
+    });
+
+    // Tables
+    function rowsHtml(rows, cls){
+      return rows.map(r=>`<tr class="${cls}"><td>${r.SCRIP}</td><td class="num">${fmtMoney(r['FINAL PnL'])}</td><td class="num">${(r['RETURN %']*100).toFixed(2)}%</td></tr>`).join('');
+    }
+    document.getElementById(prefix+'-winners').innerHTML =
+      `<colgroup><col><col style="width:38%"><col style="width:28%"></colgroup><tr><th>Scrip</th><th class="num">P&amp;L</th><th class="num">Return</th></tr>` + rowsHtml(d.top_winners,'win');
+    document.getElementById(prefix+'-losers').innerHTML =
+      `<colgroup><col><col style="width:38%"><col style="width:28%"></colgroup><tr><th>Scrip</th><th class="num">P&amp;L</th><th class="num">Return</th></tr>` + rowsHtml(d.top_losers,'loss');
+  }
+
+  renderMonth('may', FULL.may);
+  renderMonth('june', FULL.june);
+
+  // Comparison charts
+  new Chart(document.getElementById('cmp-trades'), {
+    type:'bar',
+    data:{ labels:['May','June'], datasets:[
+      { label:'Wins', data:[FULL.may.wins, FULL.june.wins], backgroundColor: inkGreen },
+      { label:'Losses', data:[FULL.may.losses, FULL.june.losses], backgroundColor: inkRed },
+      { label:'Open', data:[FULL.may.open_trades, FULL.june.open_trades], backgroundColor:'#B9C9BE' }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10 } } },
+      scales:{ x:{ stacked:true }, y:{ stacked:true, beginAtZero:true, ticks:{precision:0} } }
+    }
+  });
+
+  new Chart(document.getElementById('cmp-winrate'), {
+    type:'bar',
+    data:{ labels:['May','June'], datasets:[{
+      data:[FULL.may.win_rate_closed, FULL.june.win_rate_closed],
+      backgroundColor:[inkGreen, inkGold]
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{ y:{ beginAtZero:true, max:100, title:{display:true,text:'%'} } }
+    }
+  });
+
+  new Chart(document.getElementById('cmp-return'), {
+    type:'bar',
+    data:{ labels:['May','June'], datasets:[{
+      data:[FULL.may.total_return_pct, FULL.june.total_return_pct],
+      backgroundColor:[inkGreen, inkGold]
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{ y:{ beginAtZero:true, title:{display:true,text:'%'} } }
+    }
+  });
+</script>
+
+</body>
+</html>
